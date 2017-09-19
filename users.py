@@ -1,10 +1,11 @@
 import random
 from User import User
-
 from datetime import datetime
 
 
 def add_to_lookup(lookup, key, value):
+    if isinstance(key, str):
+        key = key.upper()
     if key in lookup:
         lookup[key].append(value)
     else:
@@ -12,12 +13,16 @@ def add_to_lookup(lookup, key, value):
 
 
 def get_value_from_lookup(lookup, key):
+    if isinstance(key, str):
+        key = key.upper()
     if key in lookup:
         return lookup[key]
     return []
 
 
 class UserGenerationLogic:
+
+    _usersFilePath = "datasource/users.csv"
     _names = ['John', 'Mark', 'Dimitri', 'Noh', 'Benford', 'Ehikhuemen', 'Janice', 'Sarah', 'Wedeck', 'Smith',
               'Stannis', 'Simcoe', 'Dylan']
     _genders = ['male', 'female']
@@ -29,6 +34,22 @@ class UserGenerationLogic:
     _gender_lookUp = {}
     _fname_lookup = {}
     _lname_lookup = {}
+
+    def __init__(self):
+        with open(self._usersFilePath, 'r') as file:
+            for line in file:
+                print(line)
+
+    def save_users_to_filesystem(self):
+        with open(self._usersFilePath, 'w') as file:
+            header = ','.join(['Id', 'First Name', 'Last Name', 'DOB',
+                               'Metadata', 'Gender', 'Date Saved'])
+            file.write(header + '\n')
+            for user in self._allUsers:
+                user_csv = ','.join(['"' + str(x) + '"' for x in [user.id, user.firstName, user.lastName,
+                                     user.dob, user.metadata, user.gender, user.dateSaved]])
+                print(user_csv)
+                file.write(user_csv + '\n')
 
     def find_users(self, query):
         results = []
@@ -43,8 +64,7 @@ class UserGenerationLogic:
 
         return results
 
-    def create_user(self, user):
-        user.dateSaved = str(datetime.now())
+    def save_user_to_memory(self, user):
         self._allUsers.append(user)
         add_to_lookup(self._gender_lookUp, user.gender, user)
         add_to_lookup(self._fname_lookup, user.firstName, user)
@@ -52,6 +72,11 @@ class UserGenerationLogic:
         metadata_keys = user.metadata.split(', ')
         for key in metadata_keys:
             add_to_lookup(self._metadata_lookUp, key, user)
+
+    def create_user(self, user):
+        user.id = len(self._allUsers) + 1
+        user.dateSaved = str(datetime.now())
+        self.save_user_to_memory(user)
 
     def create_random_users(self, num):
         assert isinstance(num, int)

@@ -32,6 +32,7 @@ if input('View Generated Users?: ').upper() in ['Y', 'YES']:
     print_users(generated_users)
 
 prompt_user_for_search('Find User: ')
+_userLogic.save_users_to_filesystem()
 input()
 
 
