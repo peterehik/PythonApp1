@@ -1,7 +1,7 @@
 import json
 
 
-class BaseClass:
+class BaseClass(object):
 
     def toJSON(self):
         return json.dumps(self.__dict__)
